@@ -102,3 +102,42 @@ func makeVote(w http.ResponseWriter, r *http.Request) {
 	// Send a success response.
 	w.WriteHeader(http.StatusOK)
 }
+
+func getResult(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Read the request body and get the poll ID.
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var pollID struct {
+		PollID int `json:"poll_id"`
+	}
+	err = json.Unmarshal(b, &pollID)
+	if err != nil {
+		http.Error(w, "Error parsing request body", http.StatusBadRequest)
+		return
+	}
+
+	// Check if the poll ID is valid.
+	if pollID.PollID < 0 || pollID.PollID >= len(polls) {
+		http.Error(w, "Invalid poll ID", http.StatusBadRequest)
+		return
+	}
+
+	// Marshal the poll and write it to the response.
+	b, err = json.Marshal(polls[pollID.PollID])
+	if err != nil {
+		http.Error(w, "Error marshalling response", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(b)
+}
