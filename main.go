@@ -59,3 +59,46 @@ func createPoll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(b)
 }
+
+func makeVote(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, "Invalid request method", http.StatusMethodNotAllowed)
+		return
+	}
+
+	// Read the request body and unmarshal it into a struct with the poll ID and choice ID.
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		http.Error(w, "Error reading request body", http.StatusBadRequest)
+		return
+	}
+	defer r.Body.Close()
+
+	var vote struct {
+		PollID int `json:"poll_id"`
+		Choice int `json:"choice_id"`
+	}
+	err = json.Unmarshal(b, &vote)
+	if err != nil {
+		http.Error(w, "Error parsing request body", http.StatusBadRequest)
+		return
+	}
+
+	// Check if the poll ID is valid.
+	if vote.PollID < 0 || vote.PollID >= len(polls) {
+		http.Error(w, "Invalid poll ID", http.StatusBadRequest)
+		return
+	}
+
+	// Check if the choice ID is valid.
+	if vote.Choice < 0 || vote.Choice >= len(polls[vote.PollID].Choices) {
+		http.Error(w, "Invalid choice ID", http.StatusBadRequest)
+		return
+	}
+
+	// Increment the result count for the chosen poll and choice.
+	polls[vote.PollID].Results[vote.Choice]++
+
+	// Send a success response.
+	w.WriteHeader(http.StatusOK)
+}
