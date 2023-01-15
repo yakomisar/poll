@@ -1,6 +1,16 @@
 package main
 
-// Implement the routes for your web service.
-// This will include routes to display the poll, receive votes, and view the results.
+import (
+	"log"
+	"poll_service/service"
+)
 
-// Methods: getResults, vote
+func main() {
+	// Создаем структуру для нашего приложения
+	// содержит gorm.DB с методами
+	app := service.Service{}
+	if err := app.Open(); err != nil {
+		log.Fatal("Error with database", err)
+	}
+
+}
