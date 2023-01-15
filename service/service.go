@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"poll_service/models"
 )
 
 type Service struct {
