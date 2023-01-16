@@ -10,6 +10,17 @@ import (
 
 func (s *Service) createPoll(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	p := models.Poll{}
+	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	if err := s.DB.Model(models.Poll{}).Preload("Choice").Create(&p).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode("Successfully created.")
 }
 
 func (s *Service) vote(w http.ResponseWriter, r *http.Request) {
