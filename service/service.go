@@ -22,9 +22,10 @@ func (s *Service) Open() error {
 		return err
 	}
 	// Пробуем открыть БД, используя файл окружения
-	sqlInfo := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", env["DB_USER"], env["DB_PASSWORD"], env["DB_HOST"], env["DB_PORT"], env["DB_NAME"])
-	fmt.Println(sqlInfo)
-	db, err := gorm.Open(postgres.Open(sqlInfo), &gorm.Config{})
+	//sqlInfo := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", env["DB_USER"], env["DB_PASSWORD"], env["DB_HOST"], env["DB_PORT"], env["DB_NAME"])
+	//fmt.Println(sqlInfo)
+	fmt.Println(env["DSN"])
+	db, err := gorm.Open(postgres.Open(env["DSN"]), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Error while openning database")
 		return err
