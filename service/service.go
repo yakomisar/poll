@@ -1,13 +1,13 @@
 package service
 
 import (
+	"fmt"
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
-	"os"
 	"poll_service/models"
 )
 
@@ -16,12 +16,15 @@ type Service struct {
 }
 
 func (s *Service) Open() error {
-	if err := godotenv.Load(".env"); err != nil {
+	env, err := godotenv.Read(".env")
+	if err != nil {
 		log.Fatal("Error when loading .env file")
 		return err
 	}
 	// Пробуем открыть БД, используя файл окружения
-	db, err := gorm.Open(postgres.Open(os.Getenv("DATABASE")), &gorm.Config{})
+	sqlInfo := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", env["DB_USER"], env["DB_PASSWORD"], env["DB_HOST"], env["DB_PORT"], env["DB_NAME"])
+	fmt.Println(sqlInfo)
+	db, err := gorm.Open(postgres.Open(sqlInfo), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Error while openning database")
 		return err

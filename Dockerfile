@@ -1,15 +1,20 @@
-FROM golang:1.16.5 as development
+# Start from golang base image
+FROM golang:alpine as development
+
+# Add Maintainer info
+LABEL maintainer="Oleg Komisarenko"
+
 # Add a work directory inside container
 WORKDIR /app
+
 # Cache and install dependencies
-COPY go.mod go.sum ./
-RUN go mod download
+#COPY go.mod go.sum .env ./
 # Copy the source from the current directory to the working Directory inside the container
 COPY . .
-# Install Reflex for development
-# RUN go install github.com/cespare/reflex@latest
-# Expose port
+RUN go mod download
+
+# Expose port 8080 to the outside world
 EXPOSE 8080
-# Start app
-#CMD reflex -g '*.go' go run main.go --start-service
+
+#Command to run the executable - Start app
 CMD go run main.go
